@@ -1,0 +1,98 @@
+create table branch(
+bname varchar2(20) primary key,
+bcity  varchar2(20),
+assets real
+);
+
+create table account(
+ano int primary key,
+bname varchar2(20) references branch(bname),
+balance real
+);
+
+create table customer (
+cname varchar2(20) primary key,
+cstreet varchar2(20),
+ccity varchar2(20)
+);
+
+create table depositor (
+cname varchar2(20) references customer(cname) on delete cascade,
+ano int references account(ano) on delete cascade
+);
+
+create table loan (
+lno int primary key,
+bname varchar2(20) references branch(bname),
+amt real
+);
+
+create table borrower(
+cname varchar2(20) references customer(cname) on delete cascade,
+lno int references loan(lno) on delete cascade
+);
+insert into branch values('abc','kath',120000);
+insert into branch values('ab','kath',200000);
+insert into branch values('a','kathmand',220000);
+insert into branch values('abcd','kathman',20000);
+insert into branch values('abce','kathm',12000);
+
+insert into account values(1,'abc',2500);
+insert into account values(4,'ab',1000);
+insert into account values(3,'ab',10000);
+insert into account values(5,'abcd',9000);
+insert into account values(2,'abce',5000);
+insert into account values(6,'a',20000);
+insert into account values(7,'abc',20000);
+
+insert into customer values('muj','chab','kath');
+insert into customer values('muji','chak','kath');
+insert into customer values('mujik','ch','kathmand');
+insert into customer values('muchik','chab','kathman');
+insert into customer values('mulik','chab','kathm');
+
+insert into depositor values('muji',1);
+insert into depositor values('muj',4);
+insert into depositor values('muj',3);
+insert into depositor values('mujik',2);
+insert into depositor values('muchik',5);
+insert into depositor values('mulik',6);
+insert into depositor values('muj',7);
+
+
+insert into loan values(11,'ab',200);
+insert into loan values(12,'ab',2000);
+insert into loan values(13,'abce',300);
+insert into loan values(14,'abcd',400);
+insert into loan values(15,'a',500);
+insert into loan values(16,'abc',5000);
+
+insert into borrower values('mujik',11);
+insert into borrower values('muji',12);
+insert into borrower values('muj',13);
+insert into borrower values('mujik',14);
+insert into borrower values('muchik',15);
+insert into borrower values('mulik',16);
+
+select cname
+from account a,depositor d
+where a.ano=d.ano and bname='ab'
+group by cname having count(*)>1;
+
+select cname from customer c
+where not exists(select bname 
+		from branch
+		where bcity='kath'
+		minus select bname
+		from account a,depositor d
+		where a.ano=d.ano and d.cname=c.cname)
+and exists(select bname from branch where bcity='kath');
+
+delete from account
+where bname in(select bname
+               from branch
+               where bcity='kathmand');
+select * from account;
+
+
+

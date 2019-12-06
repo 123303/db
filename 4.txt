@@ -1,0 +1,94 @@
+create table author(
+aid int primary key,
+aname varchar2(18),
+city varchar2(20),
+country varchar2(19)
+);
+
+create table publisher (
+pid int primary key,
+pname varchar2(19),
+city varchar2(18),
+country varchar2(20)
+);
+
+create table category (
+cid int primary key,
+descp varchar2(20)
+);
+
+create table catalog (
+bid int primary key,
+title varchar2(20),
+aid int references author(aid),
+pid int references publisher(pid),
+cid int references category(cid),
+year int,
+price int 
+);
+drop table catalog;
+create table odetails(
+odno int primary key,
+bid int references catalog(bid),
+qty int
+);
+
+insert into author values(1,'a','kath','nep');
+insert into author values(2,'ab','ny','usa');
+insert into author values(3,'abc','lnd','uk');
+insert into author values(4,'abcd','syd','aus');
+insert into author values(5,'abcde','rio','bra');
+
+insert into publisher values(11,'f','pok','nep');
+insert into publisher values(12,'fg','poke','nepu');
+insert into publisher values(13,'fgh','poker','nepal');
+insert into publisher values(14,'fghi','poket','nepa');
+insert into publisher values(15,'fghij','poks','neps');
+select * from category;
+insert into category values(111,'ae');
+insert into category values(112,'aei');
+insert into category values(113,'aeio');
+insert into category values(114,'aeiou');
+insert into category values(115,'eiou');
+
+insert into catalog values(50,'lib0',1,11,111,2002,500);
+insert into catalog values(51,'lib1',2,12,112,1998,800);
+insert into catalog values(52,'lib2',3,13,113,2004,250);
+insert into catalog values(53,'lib3',4,14,114,2007,150);
+insert into catalog values(54,'lib4',5,15,115,2008,300);
+insert into catalog values(55,'lib5',1,12,112,2009,800);
+insert into catalog values(56,'lib6',1,13,113,2001,600);
+insert into catalog values(57,'lib7',1,11,115,1997,400);
+
+insert into odetails values(1001,50,3);
+insert into odetails values(1002,51,7);
+insert into odetails values(1003,52,5);
+insert into odetails values(1004,50,1);
+insert into odetails values(1005,52,2);
+insert into odetails values(1006,51,3);
+insert into odetails values(1007,54,4);
+
+select aname,city,country
+from author
+where aid in(select aid
+	from catalog
+	where year>2000 
+	group by aid
+	having count(*)>1);
+
+select a.aid,a.aname
+from author a ,catalog c
+where a.aid=c.aid
+and c.bid=(select bid 
+	from odetails
+	group by bid
+	having sum(qty)=(select max(sum(qty))
+			from odetails	
+			group by bid));
+
+update catalog
+set price=1.1*price
+where pid in(select pid
+	from publisher
+	where pname='fgh');
+select * from catalog;

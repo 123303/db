@@ -1,0 +1,85 @@
+create table student (
+snum int primary key,
+sname varchar2(15),
+major varchar2(15),
+levels varchar2(15),
+age int
+);
+
+create table faculty (
+fid int primary key,
+fname varchar2(15),
+deptid int
+);
+
+create table class (
+cname varchar(10) primary key,
+meetsat varchar(10),
+rooms varchar(10),
+fid int references faculty(fid)
+);
+
+create table enrolled (
+snum int references student(snum),
+cname varchar2(12) references class(cname)
+);
+
+insert into student values (1,'a','cs','jr',21);
+insert into student values (2,'ab','cs','jr',21);
+insert into student values (3,'abc','is','sj',22);
+insert into student values (4,'abcd','ec','ss',23);
+insert into student values (5,'abcde','ee','sr',24);
+
+insert into faculty values (11,'harshith',111);
+insert into faculty values (12,'hars',112);
+insert into faculty values (13,'harsh',113);
+insert into faculty values (14,'harshi',114);
+insert into faculty values (15,'shit',115);
+select * from enrolled;
+insert into class values ('1st sem','10am-11am','128',11);
+insert into class values ('2nd sem','11am-12am','126',11);
+insert into class values ('3rd sem','10am-11am','125',11);
+insert into class values ('4th sem','12pm-1pm','126',12);
+insert into class values ('5th sem','9am-10am','128',13);
+
+insert into enrolled values (1,'1st sem');
+insert into enrolled values (2,'2nd sem');
+insert into enrolled values (3,'3rd sem');
+insert into enrolled values (4,'4th sem');
+insert into enrolled values (5,'5th sem');
+insert into enrolled values (1,'3rd sem');
+
+select distinct s.sname 
+from student s,enrolled e,faculty f,class c
+where   s.snum=e.snum and 
+	e.cname=c.cname and
+ 	c.fid=f.fid and
+        s.levels='jr' and
+	f.fname='harshith';
+
+select c.cname 
+from class c,enrolled e
+where c.cname=e.cname and
+c.rooms='128' or e.cname in(select cname 
+				from enrolled 
+				group by cname
+				having count(snum)>=5);
+
+select distinct s.sname
+from student s
+where s.snum in (select e1.snum 
+from enrolled e1,enrolled e2,class c1,class c2 
+where e1.cname=c1.cname and e2.cname=c2.cname and e1.snum=e2.snum and e1.cname<>c2.cname
+and c1.meetsat=c2.meetsat);
+
+select f.fname
+from faculty f
+where not exists ((select c.rooms from class c) minus (select c1.rooms from class c1 where c1.fid=f.fid));
+
+select f.fname
+from faculty f
+where 5>(select  count(e.snum) 
+from enrolled e,class c 
+where e.cname=c.cname
+and c.fid=f.fid);
+  

@@ -1,0 +1,77 @@
+create table flights (
+no int primary key,
+frm varchar(10),
+too varchar(10),
+dist int,
+dept date,
+arr date,
+price real
+);
+
+create table aircraft (
+aid int primary key,
+aname varchar(10),
+crange int
+);
+
+create table employees (
+eid int primary key,
+ename varchar(10),
+salary int
+);
+
+create table certified (
+eid int references employees(eid),
+aid int references aircraft(aid)
+);
+
+insert into flights values(255,'bengaluru','frankfurt',2000,' 01-aug-2019','02-aug-2019',2000);
+insert into flights values(256,'kathmandu','frankfurt',4000,' 03-aug-2019','04-aug-2019',7000);
+insert into flights values(257,'pokhara','london',7000,'05-aug-2019','06-aug-2019',8000);
+insert into flights values(258,'madrid','goa',200,' 07-aug-2019','08-aug-2019',4000);
+insert into flights values(259,'rio','paris',8000,' 09-aug-2019','09-aug-2019',1500);
+
+insert into aircraft values(1,'boeing10',2100);
+insert into aircraft values(2,'boeing16',1100);
+insert into aircraft values(3,'boeing13',2200);
+insert into aircraft values(4,'boeing12',1400);
+insert into aircraft values(5,'boeing15',700);
+select * from employees;
+insert into employees values (11,'cr7',85000);
+insert into employees values (12,'cr8',90000);
+insert into employees values (13,'cr9',1000);
+insert into employees values (14,'cr0',1500);
+insert into employees values (15,'cr3',34000);
+
+insert into certified values(11,1);
+insert into certified values(12,2);
+insert into certified values(13,3);
+insert into certified values(14,4);
+insert into certified values(15,5);
+insert into certified values(12,1);
+insert into certified values(13,1);
+insert into certified values(12,2);
+insert into certified values(14,1);
+
+select distinct a.aname
+from aircraft a,certified c,employees e
+where a.aid=c.aid and c.eid=e.eid and salary>80000;
+
+select distinct c.eid,max(crange)
+from aircraft a,certified c
+where a.aid=c.aid 
+group by c.eid
+having count(c.eid)>=3;
+
+select e.ename 
+from employees e
+where e.salary<(select min(price)	
+		from flights 
+		where frm='bengaluru' and too='frankfurt');
+
+select a.aname,avg(e.salary)
+from employees e,aircraft a,certified c
+where e.eid=c.eid and a.aid=c.aid and crange>1000 
+group by a.aname,a.aid;
+
+

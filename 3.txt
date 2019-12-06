@@ -1,0 +1,87 @@
+create table student1 (
+regno varchar2(15) primary key,
+name  varchar2(15),
+major varchar2(15),
+bdate date
+);
+
+create table course (
+cno int primary key,
+cname varchar2(15),
+dept varchar2(15)
+);
+
+create table enroll (
+regno varchar2(15) references student1(regno),
+cno int references course(cno),
+sem int primary key,
+marks int
+);
+
+create table text(
+isbn int primary key,
+title varchar(10),
+publ varchar(10),
+author varchar(10)
+);
+
+create table  bad (
+cno int references course(cno),
+sem int references enroll(sem),
+isbn int references text(isbn)
+);
+
+drop table student1;
+drop table enroll;
+drop table text;
+drop table course;
+
+insert into student1 values('cs54','a','cse','26-feb-1998');
+insert into student1 values('cs55','ab','cse','27-feb-1998');
+insert into student1 values('cs56','abc','ece','28-feb-1998');
+insert into student1 values('is57','abcd','ise','21-feb-1998');
+insert into student1 values('is58','abcde','ise','22-feb-1998');
+
+insert into course values (1,'java','cs');
+insert into course values (2,'c#','cs');
+insert into course values (3,'oop','cs');
+insert into course values (4,'ecc','is');
+insert into course values (5,'j2ee','is');
+
+insert into enroll values('cs54',1,6,99);
+insert into enroll values('cs55',2,5,79);
+insert into enroll values('cs56',3,4,49);
+insert into enroll values('is57',4,3,94);
+insert into enroll values('is58',5,7,97);
+
+insert into text values(111,'javaj2ee','abc','def');
+insert into text values(112,'cadsf','abc','ccc');
+insert into text values(113,'oops','ghi','bbb');
+insert into text values(114,'dududud','lmn','aaa');
+insert into text values(115,'j2ee','aei','asjd');
+select * from text;
+insert into bad values(1,6,111);
+insert into bad values(1,6,112);
+insert into bad values(1,6,113);
+insert into bad values(4,3,114);
+insert into bad values(5,7,115);
+
+
+insert into text values (116,'dudedude','lmk','ddd');
+insert into bad values (2,5,116);
+select * from text;
+
+select c.cno,b.isbn,t.title
+from course c,bad b,text t
+where c.cno=b.cno and b.isbn=t.isbn
+and c.dept='cs'  and b.cno in(select b.cno
+			from bad b,course c
+			where c.cno=b.cno
+			group by b.cno
+			having count(*)>2)
+			order by t.title;
+
+select c.dept,t.publ
+from course c,bad b,text t
+where c.cno=b.cno and b.isbn=t.isbn and t.publ='abc';
+
